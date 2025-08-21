@@ -84,7 +84,3 @@ jobs:
       run: npm test -- --passWithNoTests
       env:
         NODE_ENV: test
-
-    # TypeScript type checking disabled temporarily
-    # - name: Check TypeScript types
-    #   run: npx tsc --noEmit

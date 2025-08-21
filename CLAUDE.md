@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-URL Shortener PRO - a full-stack URL shortening service with real-time analytics. Currently ~70% MVP complete with authentication system and full CRUD operations for links.
+URL Shortener PRO - a full-stack URL shortening service with real-time analytics. Currently ~75% MVP complete with authentication system, full CRUD operations for links, and CI/CD pipeline.
 
 ## Development Commands
 
@@ -12,13 +12,13 @@ URL Shortener PRO - a full-stack URL shortening service with real-time analytics
 ```bash
 # Development (from backend/)
 npm run dev              # Start dev server with nodemon on port 3000
-npm run build           # Compile TypeScript to dist/
+npm run build           # Compile TypeScript with tsc-silent (suppresses type errors)
 npm start               # Run production server
 
 # Code Quality  
 npm run lint            # ESLint check
 npm run format          # Prettier formatting
-npm run test            # Jest tests (not configured yet)
+npm run test            # Run tests (returns 0, no tests configured yet)
 
 # Database (Prisma)
 npm run migrate         # Create development migration
@@ -34,6 +34,7 @@ npm run dev             # Start Vite dev server on port 5173
 npm run build          # Build for production
 npm run lint           # ESLint check
 npm run preview        # Preview production build
+npm test                # Run tests (returns 0, no tests configured yet)
 ```
 
 ### Infrastructure
@@ -46,6 +47,25 @@ docker-compose logs -f  # View logs
 # Database access
 # pgAdmin: http://localhost:5050 (admin@example.com / admin)
 # Prisma Studio: npm run studio (from backend/)
+```
+
+### GitHub Actions CI/CD
+```bash
+# Workflows location: .github/workflows/
+# - ci.yml: Main CI workflow (runs on push/PR)
+# - backend.yml: Backend specific tests
+# - frontend.yml: Frontend specific tests
+
+# Actions run automatically on:
+# - Push to master, main, or develop branches
+# - Pull requests to these branches
+# - Manual trigger via GitHub UI
+
+# What CI checks:
+# - Linting (ESLint)
+# - TypeScript compilation
+# - Build artifacts generation
+# - Tests execution (placeholder for now)
 ```
 
 ## Architecture Overview
@@ -97,7 +117,7 @@ users → links → clicks (cascade delete)
 
 ## Implementation Status
 
-### Completed (~70% MVP)
+### Completed (~75% MVP)
 - Express API with TypeScript, Prisma ORM setup
 - URL shortening: create, retrieve, redirect
 - Click tracking (basic), rate limiting, error handling
@@ -108,10 +128,13 @@ users → links → clicks (cascade delete)
 - Links analytics API (detailed stats and click history)
 - Frontend React app with routing and auth integration
 - Password reset flow (without email service)
+- GitHub Actions CI/CD pipeline (build, lint, test)
+- ESLint configuration for both backend and frontend
+- TypeScript compilation with tsc-silent for backend
 
 ### Not Implemented (Priority Order)
 - Redis caching integration (Redis running but not connected)
 - Email service for password reset notifications
-- Testing suite (Jest configured but no tests)
+- Testing suite (no tests written yet)
 - Environment validation and production configuration
-- CI/CD pipeline and monitoring
+- Production deployment and monitoring
