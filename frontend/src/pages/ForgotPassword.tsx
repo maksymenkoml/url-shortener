@@ -17,8 +17,9 @@ const ForgotPassword: React.FC = () => {
       await apiClient.post('/auth/forgot-password', { email });
       setEmailSent(true);
       toast.success('Password reset instructions sent to your email');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Failed to send reset email');
+    } catch (error) {
+      const errorMessage = (error as any).response?.data?.error?.message || 'Failed to send reset email';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

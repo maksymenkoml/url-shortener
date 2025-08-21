@@ -32,7 +32,7 @@ const Login: React.FC = () => {
     try {
       await login({ email, password });
       navigate(from, { replace: true });
-    } catch (error) {
+    } catch {
       // Error is handled in AuthContext
     } finally {
       setLoading(false);

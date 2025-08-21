@@ -45,7 +45,7 @@ const Register: React.FC = () => {
     try {
       await register({ email, password, fullName: fullName || undefined });
       navigate('/dashboard');
-    } catch (error) {
+    } catch {
       // Error is handled in AuthContext
     } finally {
       setLoading(false);
