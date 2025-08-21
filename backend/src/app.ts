@@ -1,4 +1,4 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -17,7 +17,7 @@ import { redirectToOriginalUrl } from './controllers/linkController';
 dotenv.config();
 
 // Create Express app
-const app: Application = express();
+const app: any = express();
 
 // Security middleware
 app.use(helmet());

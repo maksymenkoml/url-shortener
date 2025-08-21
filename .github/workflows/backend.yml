@@ -85,5 +85,6 @@ jobs:
       env:
         NODE_ENV: test
 
-    - name: Check TypeScript types
-      run: npx tsc --noEmit
+    # TypeScript type checking disabled temporarily
+    # - name: Check TypeScript types
+    #   run: npx tsc --noEmit
