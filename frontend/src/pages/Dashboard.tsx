@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
     try {
       const data = await linksApi.getUserLinks();
       setLinks(data.links || []);
-    } catch (error) {
+    } catch {
       toast.error('Failed to fetch links');
     } finally {
       setLoading(false);
@@ -59,7 +59,7 @@ const Dashboard: React.FC = () => {
       setNewUrl('');
       setNewTitle('');
       fetchLinks();
-    } catch (error) {
+    } catch {
       toast.error('Failed to create link');
     } finally {
       setCreating(false);
@@ -73,7 +73,7 @@ const Dashboard: React.FC = () => {
       await linksApi.deleteLink(id);
       toast.success('Link deleted successfully');
       fetchLinks();
-    } catch (error) {
+    } catch {
       toast.error('Failed to delete link');
     }
   };

@@ -4,19 +4,6 @@ import { AppError } from './errorHandler';
 import { ERROR_CODES } from '../utils/apiResponse';
 import prisma from '../config/database';
 
-// Extend Express Request type
-declare global {
-  namespace Express {
-    interface Request {
-      user?: {
-        id: string;
-        email: string;
-      };
-      token?: string;
-    }
-  }
-}
-
 export const authenticate = async (
   req: Request,
   _res: Response,
@@ -95,7 +82,7 @@ export const optionalAuthenticate = async (
     }
 
     next();
-  } catch (error) {
+  } catch {
     // If authentication fails, continue without user
     next();
   }

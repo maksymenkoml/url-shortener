@@ -24,8 +24,9 @@ const UrlShortener: React.FC = () => {
       setShortUrl(result.shortUrl);
       setUrl('');
       toast.success('Short URL created successfully!');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Failed to create short URL');
+    } catch (error) {
+      const errorMessage = (error as any).response?.data?.error?.message || 'Failed to create short URL';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

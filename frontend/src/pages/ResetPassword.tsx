@@ -37,8 +37,9 @@ const ResetPassword: React.FC = () => {
       await apiClient.post('/auth/reset-password', { token, password });
       toast.success('Password reset successfully!');
       navigate('/login');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Failed to reset password');
+    } catch (error) {
+      const errorMessage = (error as any).response?.data?.error?.message || 'Failed to reset password';
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

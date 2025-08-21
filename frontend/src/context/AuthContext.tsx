@@ -32,6 +32,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -66,8 +67,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);
       toast.success('Successfully logged in!');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Login failed');
+    } catch (error) {
+      const errorMessage = (error as any).response?.data?.error?.message || 'Login failed';
+      toast.error(errorMessage);
       throw error;
     }
   };
@@ -80,8 +82,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);
       toast.success('Registration successful!');
-    } catch (error: any) {
-      toast.error(error.response?.data?.error?.message || 'Registration failed');
+    } catch (error) {
+      const errorMessage = (error as any).response?.data?.error?.message || 'Registration failed';
+      toast.error(errorMessage);
       throw error;
     }
   };
