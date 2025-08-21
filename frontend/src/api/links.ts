@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { Link, CreateLinkRequest } from '../types/links.types';
+import type { CreateLinkRequest } from '../types/links.types';
 
 export const linksApi = {
   // Create short link (anonymous)

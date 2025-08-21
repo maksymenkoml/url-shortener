@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { authApi } from '../api/auth';
 import toast from 'react-hot-toast';
 
@@ -60,8 +61,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (data: LoginRequest) => {
     try {
       const response = await authApi.login(data);
-      localStorage.setItem('token', response.tokens.accessToken);
-      localStorage.setItem('refreshToken', response.tokens.refreshToken);
+      localStorage.setItem('token', response.accessToken);
+      localStorage.setItem('refreshToken', response.refreshToken);
       localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);
       toast.success('Successfully logged in!');
@@ -74,8 +75,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (data: RegisterRequest) => {
     try {
       const response = await authApi.register(data);
-      localStorage.setItem('token', response.tokens.accessToken);
-      localStorage.setItem('refreshToken', response.tokens.refreshToken);
+      localStorage.setItem('token', response.accessToken);
+      localStorage.setItem('refreshToken', response.refreshToken);
       localStorage.setItem('user', JSON.stringify(response.user));
       setUser(response.user);
       toast.success('Registration successful!');

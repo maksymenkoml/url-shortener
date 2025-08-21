@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { EnvelopeIcon, LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
+import { validateEmail, validateFullName } from '../utils/validation';
 
 const Register: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -15,13 +17,27 @@ const Register: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (password !== confirmPassword) {
-      alert('Passwords do not match');
+    // Validate email
+    if (!validateEmail(email)) {
+      toast.error('Please enter a valid email address');
       return;
     }
-
-    if (password.length < 8) {
-      alert('Password must be at least 8 characters');
+    
+    // Validate full name
+    if (!validateFullName(fullName)) {
+      toast.error('Full name must be between 2 and 100 characters');
+      return;
+    }
+    
+    // Check password match
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    
+    // Check password is not empty
+    if (!password) {
+      toast.error('Password is required');
       return;
     }
 
@@ -98,12 +114,10 @@ const Register: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={8}
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="••••••••"
               />
             </div>
-            <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
           </div>
 
           <div>

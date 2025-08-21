@@ -11,13 +11,8 @@ export const registerSchema = Joi.object({
       'any.required': 'Email is required',
     }),
   password: Joi.string()
-    .min(8)
-    .max(128)
     .required()
-    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])'))
     .messages({
-      'string.min': 'Password must be at least 8 characters long',
-      'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
       'string.empty': 'Password is required',
       'any.required': 'Password is required',
     }),
@@ -63,13 +58,8 @@ export const changePasswordSchema = Joi.object({
       'any.required': 'Current password is required',
     }),
   newPassword: Joi.string()
-    .min(8)
-    .max(128)
     .required()
-    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])'))
     .messages({
-      'string.min': 'New password must be at least 8 characters long',
-      'string.pattern.base': 'New password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
       'string.empty': 'New password is required',
       'any.required': 'New password is required',
     }),
@@ -94,13 +84,8 @@ export const resetPasswordSchema = Joi.object({
       'any.required': 'Reset token is required',
     }),
   newPassword: Joi.string()
-    .min(8)
-    .max(128)
     .required()
-    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])'))
     .messages({
-      'string.min': 'New password must be at least 8 characters long',
-      'string.pattern.base': 'New password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
       'string.empty': 'New password is required',
       'any.required': 'New password is required',
     }),

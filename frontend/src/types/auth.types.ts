@@ -17,9 +17,6 @@ export type RegisterRequest = {
 
 export type AuthResponse = {
   user: User;
-  tokens: {
-    accessToken: string;
-    refreshToken: string;
-    expiresIn: number;
-  };
+  accessToken: string;
+  refreshToken: string;
 }
