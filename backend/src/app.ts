@@ -9,6 +9,8 @@ import dotenv from 'dotenv';
 import { API_PREFIX, CORS_OPTIONS, RATE_LIMIT } from './config/constants';
 import { errorHandler } from './middleware/errorHandler';
 import linkRoutes from './routes/linkRoutes';
+import authRoutes from './routes/authRoutes';
+import userRoutes from './routes/userRoutes';
 import { redirectToOriginalUrl } from './controllers/linkController';
 
 // Load environment variables
@@ -51,6 +53,8 @@ app.get('/:shortCode', redirectToOriginalUrl);
 
 // API routes
 app.use(API_PREFIX, linkRoutes);
+app.use(`${API_PREFIX}/auth`, authRoutes);
+app.use(`${API_PREFIX}/user`, userRoutes);
 
 // 404 handler
 app.use((_req: Request, res: Response) => {

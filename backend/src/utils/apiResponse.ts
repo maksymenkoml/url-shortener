@@ -40,6 +40,23 @@ export const sendError = (
   return res.status(statusCode).json(response);
 };
 
+export const successResponse = <T>(
+  data: T,
+  message?: string,
+  meta?: any
+): ApiResponse<T> => {
+  return {
+    success: true,
+    data,
+    meta: {
+      timestamp: new Date().toISOString(),
+      version: '1.0.0',
+      ...(message && { message }),
+      ...meta,
+    },
+  };
+};
+
 export const ERROR_CODES = {
   VALIDATION_ERROR: 'VALIDATION_ERROR',
   UNAUTHORIZED: 'UNAUTHORIZED',

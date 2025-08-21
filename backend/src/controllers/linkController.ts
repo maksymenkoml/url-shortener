@@ -12,7 +12,7 @@ export const createShortLink = asyncHandler(async (req: Request, res: Response) 
     url,
     title,
     description,
-    // userId will be added when we implement auth
+    userId: req.user?.id,
   });
 
   sendSuccess(res, link, 201);

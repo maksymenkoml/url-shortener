@@ -4,22 +4,21 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-URL Shortener PRO - a URL shortening service with real-time analytics, user management, and dashboard capabilities. The project has comprehensive technical documentation in the `docs/` folder covering architecture, database schema, API specifications, and technology stack.
+URL Shortener PRO - a monolithic URL shortening service with real-time analytics. Currently ~30% MVP complete with backend API operational.
 
 ## Development Commands
 
 ### Backend (Node.js/Express/TypeScript)
 ```bash
-# Development
-cd backend
-npm run dev              # Start dev server with nodemon
+# Development (from backend/)
+npm run dev              # Start dev server with nodemon on port 3000
 npm run build           # Compile TypeScript to dist/
 npm start               # Run production server
 
-# Testing & Quality  
-npm run test            # Run Jest tests (not configured yet)
+# Code Quality  
 npm run lint            # ESLint check
 npm run format          # Prettier formatting
+npm run test            # Jest tests (not configured yet)
 
 # Database (Prisma)
 npm run migrate         # Create development migration
@@ -28,10 +27,10 @@ npm run studio          # Open Prisma Studio GUI
 npx prisma generate     # Generate Prisma client after schema changes
 ```
 
-### Docker & Infrastructure
+### Infrastructure
 ```bash
-# Docker commands (from root directory)
-docker-compose up -d    # Start PostgreSQL and Redis services
+# Start services (from root)
+docker-compose up -d    # PostgreSQL (5432) and Redis (6379)
 docker-compose down     # Stop all services
 docker-compose logs -f  # View logs
 
@@ -42,153 +41,54 @@ docker-compose logs -f  # View logs
 
 ## Architecture Overview
 
-### Monolithic Architecture (MVP)
-- **Backend**: Express.js API server with TypeScript
-- **Frontend**: React SPA with Vite bundler (to be implemented)
-- **Database**: PostgreSQL 15 with Prisma ORM
-- **Cache**: Redis 7 for sessions and URL caching (to be implemented)
-- **Proxy**: Nginx for load balancing and static assets
+### Core Architecture
+Express.js monolithic API with TypeScript, using service layer pattern for business logic separation. PostgreSQL for persistence with Prisma ORM handling database operations and migrations.
 
-### Core Services Structure
-```
-services/
-├── LinkService      # Short code generation, URL validation, CRUD operations
-├── AnalyticsService # Click tracking, GeoIP, stats aggregation (to be implemented)
-├── AuthService      # JWT auth, registration, password reset (to be implemented)
-└── UserService      # Profile management, user operations (to be implemented)
-```
+### Service Layer (`backend/src/services/`)
+- **LinkService**: URL shortening core - `createShortLink()`, `getOriginalUrl()`, `trackClick()`
+- **AnalyticsService**: Click tracking and stats (planned)
+- **AuthService**: JWT authentication (planned)
+- **UserService**: User management (planned)
 
-### API Structure
-- Base path: `/api/v1/`
-- Authentication: JWT Bearer tokens (to be implemented)
-- Public endpoints: `/shorten`, `/:shortCode`, `/links/:shortCode`, `/links/:shortCode/stats`
-- Protected endpoints: `/links`, `/analytics`, `/user` (to be implemented)
-- Rate limiting: Configured via express-rate-limit
-- Health check: `/health`
+### API Routes
+- **Base**: `/api/v1/`
+- **Public**: `POST /shorten`, `GET /:shortCode` (redirect), `GET /links/:shortCode`
+- **Health**: `GET /health`
+- **Rate limited**: 100 requests/15min per IP
 
-### Database Schema
-- `users` - User accounts with authentication
-- `links` - Short URLs with metadata and statistics
-- `clicks` - Detailed click analytics per visit
-- `sessions` - User sessions for JWT management
-- `password_resets` - Password reset tokens
+## URL Shortening Implementation
 
-## Technology Stack Details
-
-### Backend Dependencies
-- **Runtime**: Node.js 20 LTS
-- **Framework**: Express.js 5.1
-- **Language**: TypeScript 5.9
-- **ORM**: Prisma 6.14
-- **Auth**: jsonwebtoken, bcrypt
-- **Validation**: Joi 18.0
-- **Utils**: nanoid 5.1 (short codes), compression, helmet, cors, morgan
-- **Rate Limiting**: express-rate-limit 8.0
-
-### Infrastructure
-- **Database**: PostgreSQL 15
-- **Cache**: Redis 7 (configured in docker-compose)
-- **Container**: Docker & docker-compose
-- **Environment**: dotenv for configuration
-
-## Key Implementation Details
-
-### URL Shortening Logic
-- `nanoid` generates 6-character short codes using custom alphabet (no confusing chars: 0, O, I, l)
-- URL validation in `utils/urlUtils.ts` - checks protocol and length
-- Collision handling with retry mechanism (max 10 attempts)
-- Anonymous links cached in database to avoid duplicates
-
-### Service Layer Pattern
-Services encapsulate business logic in `services/`:
-- `LinkService`: URL shortening, CRUD operations, click tracking
-  - `createShortLink()`: Creates new short URL with validation
-  - `getLinkByShortCode()`: Retrieves link details
-  - `getOriginalUrl()`: Gets original URL and increments clicks
-  - `trackClick()`: Records click analytics
+### Short Code Generation
+- Uses `nanoid` with custom alphabet (excludes 0, O, I, l) for 6-char codes
+- Collision retry mechanism (max 10 attempts)
+- Anonymous URLs deduplicated by checking existing `originalUrl` with `userId: null`
 
 ### Error Handling
-- Custom `AppError` class for consistent error responses
-- Global error middleware in `middleware/errorHandler.ts`
-- Standardized API responses via `utils/apiResponse.ts`
-- Error codes defined in constants
+- `AppError` class in `middleware/errorHandler.ts` for consistent errors
+- Standardized responses via `utils/apiResponse.ts`
+- HTTP status codes: 400 (validation), 404 (not found), 410 (expired/deactivated), 500 (server error)
 
-### Routing Structure
-- Main app configuration in `app.ts`
-- Route definitions in `routes/linkRoutes.ts`
-- Controllers in `controllers/linkController.ts`
-- Redirect route (`/:shortCode`) handled separately from API routes
-
-### Performance Considerations
-- Database indexes on: `short_code`, `user_id`, `created_at`, `email`
-- Connection pooling via Prisma
-- Async click tracking (fire-and-forget pattern)
-- Compression middleware enabled
-
-## API Response Standards
-
-### Success Response
-```json
-{
-  "success": true,
-  "data": { /* response data */ },
-  "meta": {
-    "timestamp": "2024-01-15T10:30:00Z",
-    "version": "1.0.0"
-  }
-}
+### Database Schema (Prisma)
 ```
-
-### Error Response
-```json
-{
-  "success": false,
-  "error": {
-    "code": "ERROR_CODE",
-    "message": "Human readable message",
-    "details": []
-  }
-}
+users → links → clicks (cascade delete)
+         ↓
+    sessions, password_resets
 ```
+- BigInt IDs require `.toString()` in JSON responses
+- Indexes on: `short_code`, `user_id`, `created_at`, `email`
+- Migrations: Update schema → `npm run migrate` → Deploy with `npm run migrate:deploy`
 
-## Database Schema & Migrations
+## Implementation Status
 
-### Migration Workflow
-1. Update `backend/prisma/schema.prisma`
-2. Run `npm run migrate` to create migration
-3. Review generated SQL in `prisma/migrations/`
-4. Test migration locally
-5. Deploy with `npm run migrate:deploy`
+### Completed (~30% MVP)
+- Express API with TypeScript, Prisma ORM setup
+- URL shortening: create, retrieve, redirect
+- Click tracking (basic), rate limiting, error handling
+- Database schema (users, links, clicks, sessions, password_resets)
 
-### BigInt Handling
-All ID fields use BigInt type - requires special handling in JSON serialization
-
-## Current Implementation Status
-
-### ✅ Completed
-- Basic Express server setup with TypeScript
-- Prisma ORM configuration with full schema
-- Database schema design (all tables)
-- URL shortening service (create, retrieve)
-- Short code generation with custom alphabet
-- URL validation and normalization
-- API endpoints (`/api/v1/shorten`, `/:shortCode`, `/api/v1/links/:shortCode`)
-- Error handling middleware with AppError class
-- API response standardization
-- Health check endpoint
-- Rate limiting configuration
-- Security middleware (helmet, cors)
-- Logging with morgan
-- Click tracking (basic implementation)
-
-### 🚧 To Do (Priority Order)
-1. User authentication (JWT implementation)
-2. Protected routes middleware
-3. User registration/login endpoints
-4. Analytics service implementation
-5. Redis caching layer integration
-6. Click analytics with GeoIP
-7. Frontend React application
-8. Testing setup with Jest
-9. User dashboard functionality
-10. Password reset flow
+### Not Implemented
+- Authentication (JWT), user registration/login
+- Protected routes, analytics service
+- Redis caching, GeoIP tracking
+- Frontend (React/Vite)
+- Testing (Jest)

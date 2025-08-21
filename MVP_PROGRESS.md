@@ -2,7 +2,7 @@
 
 *Останнє оновлення: 2025-08-21*
 
-## 🎯 Загальний прогрес MVP: ~30%
+## 🎯 Загальний прогрес MVP: ~45%
 
 ## 1. Backend API Implementation
 
@@ -31,15 +31,21 @@
 | `/api/v1/links/:shortCode` | GET | ✅ Готово | Інформація про посилання |
 | `/api/v1/links/:shortCode/stats` | GET | ⚠️ Частково | Базова статистика |
 | **Authentication** ||||
-| `/api/v1/auth/register` | POST | ❌ Відсутнє | - |
-| `/api/v1/auth/login` | POST | ❌ Відсутнє | - |
-| `/api/v1/auth/refresh` | POST | ❌ Відсутнє | - |
-| `/api/v1/auth/logout` | POST | ❌ Відсутнє | - |
-| `/api/v1/auth/forgot-password` | POST | ❌ Відсутнє | - |
-| `/api/v1/auth/reset-password` | POST | ❌ Відсутнє | - |
+| `/api/v1/auth/register` | POST | ✅ Готово | JWT tokens |
+| `/api/v1/auth/login` | POST | ✅ Готово | JWT tokens |
+| `/api/v1/auth/refresh` | POST | ✅ Готово | Refresh tokens |
+| `/api/v1/auth/logout` | POST | ✅ Готово | Інвалідація сесії |
+| `/api/v1/auth/logout-all` | POST | ✅ Готово | Закриття всіх сесій |
+| `/api/v1/auth/change-password` | POST | ✅ Готово | Зміна паролю |
+| `/api/v1/auth/forgot-password` | POST | ✅ Готово | Без email (console log) |
+| `/api/v1/auth/reset-password` | POST | ✅ Готово | Reset token |
 | **Protected Endpoints** ||||
-| `/api/v1/user/profile` | GET | ❌ Відсутнє | Потребує auth |
-| `/api/v1/user/profile` | PUT | ❌ Відсутнє | Потребує auth |
+| `/api/v1/user/profile` | GET | ✅ Готово | JWT auth |
+| `/api/v1/user/profile` | PUT | ✅ Готово | Оновлення профілю |
+| `/api/v1/user/stats` | GET | ✅ Готово | Статистика користувача |
+| `/api/v1/user/links` | GET | ✅ Готово | Лінки користувача |
+| `/api/v1/user/deactivate` | POST | ✅ Готово | Деактивація акаунту |
+| `/api/v1/user/delete` | DELETE | ✅ Готово | Видалення акаунту |
 | `/api/v1/links` | POST | ❌ Відсутнє | Створення авторизованим |
 | `/api/v1/links` | GET | ❌ Відсутнє | Список посилань |
 | `/api/v1/links/:id` | GET | ❌ Відсутнє | Деталі посилання |
@@ -61,8 +67,19 @@
 | ├─ updateLink | ❌ Відсутнє | 0% | - |
 | ├─ deleteLink | ❌ Відсутнє | 0% | - |
 | └─ getUserLinks | ❌ Відсутнє | 0% | - |
-| **AuthService** | ❌ Відсутнє | 0% | JWT не налаштовано |
-| **UserService** | ❌ Відсутнє | 0% | - |
+| **AuthService** | ✅ Готово | 100% | Повна імплементація |
+| ├─ register | ✅ Готово | 100% | bcrypt + JWT |
+| ├─ login | ✅ Готово | 100% | - |
+| ├─ logout/logoutAll | ✅ Готово | 100% | - |
+| ├─ refreshTokens | ✅ Готово | 100% | - |
+| ├─ changePassword | ✅ Готово | 100% | - |
+| └─ resetPassword | ✅ Готово | 100% | - |
+| **UserService** | ✅ Готово | 100% | Повна імплементація |
+| ├─ getUserById | ✅ Готово | 100% | - |
+| ├─ updateProfile | ✅ Готово | 100% | - |
+| ├─ getUserStats | ✅ Готово | 100% | - |
+| ├─ getUserLinks | ✅ Готово | 100% | - |
+| └─ deleteAccount | ✅ Готово | 100% | - |
 | **AnalyticsService** | ❌ Відсутнє | 0% | - |
 
 ### 1.4 Middleware & Security
@@ -74,9 +91,9 @@
 | ├─ Rate Limiting | ⚠️ Частково | 60% | Базовий, без диференціації |
 | └─ Compression | ✅ Готово | 100% | gzip compression |
 | **Authentication** ||||
-| ├─ JWT middleware | ❌ Відсутнє | 0% | - |
-| ├─ Password hashing | ❌ Відсутнє | 0% | bcrypt готовий до використання |
-| └─ Session management | ❌ Відсутнє | 0% | - |
+| ├─ JWT middleware | ✅ Готово | 100% | authenticate + optionalAuthenticate |
+| ├─ Password hashing | ✅ Готово | 100% | bcrypt з salt rounds |
+| └─ Session management | ✅ Готово | 100% | Sessions в БД |
 | **Validation** ||||
 | ├─ Request validation | ✅ Готово | 100% | Joi middleware |
 | ├─ URL validation | ✅ Готово | 100% | - |
@@ -179,11 +196,11 @@
 ## 📝 Критичні завдання для MVP
 
 ### 🔴 Пріоритет 1 (Блокери MVP)
-1. **Імплементація JWT автентифікації**
-2. **Auth endpoints** (register, login, logout)
-3. **Protected routes middleware**
-4. **User dashboard API**
-5. **Базовий React frontend**
+1. ~~**Імплементація JWT автентифікації**~~ ✅ ГОТОВО
+2. ~~**Auth endpoints** (register, login, logout)~~ ✅ ГОТОВО
+3. ~~**Protected routes middleware**~~ ✅ ГОТОВО
+4. ~~**User dashboard API**~~ ✅ ГОТОВО
+5. **Інтеграція Frontend з новим Auth API**
 
 ### 🟡 Пріоритет 2 (Важливо для MVP)
 1. **Redis інтеграція** для кешування
@@ -203,9 +220,9 @@
 
 | Метрика | Ціль | Поточний стан |
 |---------|------|---------------|
-| Функціональність Backend | 100% | ~30% |
+| Функціональність Backend | 100% | ~45% |
 | Функціональність Frontend | 100% | ~80% |
-| API Coverage | 20+ endpoints | 4 endpoints |
+| API Coverage | 20+ endpoints | 18 endpoints |
 | Test Coverage | >70% | 0% |
 | Documentation | 100% | ~85% |
 
