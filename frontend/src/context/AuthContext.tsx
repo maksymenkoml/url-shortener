@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(response.user);
       toast.success('Successfully logged in!');
     } catch (error) {
-      const errorMessage = (error as any).response?.data?.error?.message || 'Login failed';
+      const errorMessage = (error as unknown as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Login failed';
       toast.error(errorMessage);
       throw error;
     }
@@ -83,7 +83,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser(response.user);
       toast.success('Registration successful!');
     } catch (error) {
-      const errorMessage = (error as any).response?.data?.error?.message || 'Registration failed';
+      const errorMessage = (error as unknown as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message || 'Registration failed';
       toast.error(errorMessage);
       throw error;
     }
