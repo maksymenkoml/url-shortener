@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-URL Shortener PRO - a monolithic URL shortening service with real-time analytics. Currently ~30% MVP complete with backend API operational.
+URL Shortener PRO - a full-stack URL shortening service with real-time analytics. Currently ~70% MVP complete with authentication system and full CRUD operations for links.
 
 ## Development Commands
 
@@ -27,6 +27,15 @@ npm run studio          # Open Prisma Studio GUI
 npx prisma generate     # Generate Prisma client after schema changes
 ```
 
+### Frontend (React/Vite/TypeScript)
+```bash
+# Development (from frontend/)
+npm run dev             # Start Vite dev server on port 5173
+npm run build          # Build for production
+npm run lint           # ESLint check
+npm run preview        # Preview production build
+```
+
 ### Infrastructure
 ```bash
 # Start services (from root)
@@ -42,19 +51,27 @@ docker-compose logs -f  # View logs
 ## Architecture Overview
 
 ### Core Architecture
-Express.js monolithic API with TypeScript, using service layer pattern for business logic separation. PostgreSQL for persistence with Prisma ORM handling database operations and migrations.
+Monolithic application with separated backend API (Express.js) and frontend SPA (React). Backend uses service layer pattern for business logic separation. PostgreSQL for persistence with Prisma ORM handling database operations and migrations.
 
 ### Service Layer (`backend/src/services/`)
 - **LinkService**: URL shortening core - `createShortLink()`, `getOriginalUrl()`, `trackClick()`
-- **AnalyticsService**: Click tracking and stats (planned)
-- **AuthService**: JWT authentication (planned)
-- **UserService**: User management (planned)
+- **AuthService**: JWT authentication with refresh tokens - complete implementation
+- **UserService**: User management, profile updates, account deletion - complete implementation
+- **AnalyticsService**: Click tracking and stats (not yet implemented)
 
-### API Routes
+### API Routes (`backend/src/routes/`)
 - **Base**: `/api/v1/`
 - **Public**: `POST /shorten`, `GET /:shortCode` (redirect), `GET /links/:shortCode`
+- **Authentication** (`/api/v1/auth/*`): register, login, logout, refresh, password reset
+- **User** (`/api/v1/user/*`): profile, stats, links (protected routes)
 - **Health**: `GET /health`
 - **Rate limited**: 100 requests/15min per IP
+
+### Frontend Structure (`frontend/src/`)
+- **Pages**: Home, Login, Register, Dashboard, Password Reset
+- **Components**: Layout, PrivateRoute, UrlShortener
+- **Context**: AuthContext for global authentication state
+- **API Client**: Axios with interceptors for auth token management
 
 ## URL Shortening Implementation
 
@@ -80,15 +97,21 @@ users → links → clicks (cascade delete)
 
 ## Implementation Status
 
-### Completed (~30% MVP)
+### Completed (~70% MVP)
 - Express API with TypeScript, Prisma ORM setup
 - URL shortening: create, retrieve, redirect
 - Click tracking (basic), rate limiting, error handling
 - Database schema (users, links, clicks, sessions, password_resets)
+- Full authentication system (JWT with refresh tokens)
+- User management (register, login, profile, delete account)
+- Full CRUD operations for links (create, read, update, delete)
+- Links analytics API (detailed stats and click history)
+- Frontend React app with routing and auth integration
+- Password reset flow (without email service)
 
-### Not Implemented
-- Authentication (JWT), user registration/login
-- Protected routes, analytics service
-- Redis caching, GeoIP tracking
-- Frontend (React/Vite)
-- Testing (Jest)
+### Not Implemented (Priority Order)
+- Redis caching integration (Redis running but not connected)
+- Email service for password reset notifications
+- Testing suite (Jest configured but no tests)
+- Environment validation and production configuration
+- CI/CD pipeline and monitoring

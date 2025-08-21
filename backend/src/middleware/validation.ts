@@ -36,16 +36,19 @@ export const schemas = {
         'string.uri': 'Must be a valid HTTP/HTTPS URL',
         'any.required': 'URL is required',
       }),
-    title: Joi.string().max(255).optional(),
-    description: Joi.string().max(1000).optional(),
+    title: Joi.string().max(255).optional().allow('', null),
+    description: Joi.string().max(1000).optional().allow('', null),
   }),
   
   updateLink: Joi.object({
-    originalUrl: Joi.string()
-      .uri({ scheme: ['http', 'https'] })
-      .optional(),
-    title: Joi.string().max(255).optional(),
-    description: Joi.string().max(1000).optional(),
+    title: Joi.string().max(255).optional().allow(''),
+    description: Joi.string().max(1000).optional().allow(''),
     isActive: Joi.boolean().optional(),
+    expiresAt: Joi.date().optional().allow(null),
+  }),
+  
+  pagination: Joi.object({
+    page: Joi.number().integer().min(1).optional(),
+    limit: Joi.number().integer().min(1).max(100).optional(),
   }),
 };

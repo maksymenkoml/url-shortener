@@ -72,3 +72,77 @@ export const getLinkStats = asyncHandler(async (req: Request, res: Response) => 
 
   sendSuccess(res, stats);
 });
+
+// Protected endpoints for authenticated users
+export const getUserLinks = asyncHandler(async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 20;
+  
+  const result = await linkService.getUserLinks(req.user!.id, page, limit);
+  sendSuccess(res, result);
+});
+
+export const createUserLink = asyncHandler(async (req: Request, res: Response) => {
+  const { url, title, description } = req.body;
+  
+  const link = await linkService.createShortLink({
+    url,
+    title,
+    description,
+    userId: req.user!.id,
+  });
+
+  sendSuccess(res, link, 201);
+});
+
+export const getUserLinkById = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  
+  const link = await linkService.getLinkById(id, req.user!.id);
+  
+  if (!link) {
+    sendError(res, ERROR_CODES.NOT_FOUND, 'Link not found', 404);
+    return;
+  }
+
+  sendSuccess(res, link);
+});
+
+export const updateUserLink = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { title, description, isActive, expiresAt } = req.body;
+  
+  const link = await linkService.updateLink(
+    id, 
+    req.user!.id,
+    { title, description, isActive, expiresAt }
+  );
+
+  sendSuccess(res, link);
+});
+
+export const deleteUserLink = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  
+  await linkService.deleteLink(id, req.user!.id);
+  
+  sendSuccess(res, { message: 'Link deleted successfully' });
+});
+
+export const getLinkAnalytics = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  
+  const analytics = await linkService.getLinkAnalytics(id, req.user!.id);
+  
+  sendSuccess(res, analytics);
+});
+
+export const getLinkClicks = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 50;
+  
+  const result = await linkService.getLinkClicks(id, req.user!.id, page, limit);
+  
+  sendSuccess(res, result);
+});

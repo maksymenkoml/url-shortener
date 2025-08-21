@@ -130,6 +130,207 @@ export class LinkService {
     }).catch(console.error);
   }
 
+  async getUserLinks(userId: string, page: number = 1, limit: number = 20): Promise<{
+    links: LinkResponse[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
+    const skip = (page - 1) * limit;
+
+    const [links, total] = await Promise.all([
+      prisma.link.findMany({
+        where: {
+          userId: BigInt(userId),
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip,
+        take: limit,
+      }),
+      prisma.link.count({
+        where: {
+          userId: BigInt(userId),
+        },
+      }),
+    ]);
+
+    return {
+      links: links.map(link => this.formatLinkResponse(link)),
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async getLinkById(linkId: string, userId: string): Promise<LinkResponse | null> {
+    const link = await prisma.link.findFirst({
+      where: {
+        id: BigInt(linkId),
+        userId: BigInt(userId),
+      },
+    });
+
+    if (!link) {
+      return null;
+    }
+
+    return this.formatLinkResponse(link);
+  }
+
+  async updateLink(
+    linkId: string,
+    userId: string,
+    data: {
+      title?: string;
+      description?: string;
+      isActive?: boolean;
+      expiresAt?: Date;
+    }
+  ): Promise<LinkResponse> {
+    const link = await prisma.link.findFirst({
+      where: {
+        id: BigInt(linkId),
+        userId: BigInt(userId),
+      },
+    });
+
+    if (!link) {
+      throw new AppError(404, ERROR_CODES.NOT_FOUND, 'Link not found');
+    }
+
+    const updatedLink = await prisma.link.update({
+      where: {
+        id: BigInt(linkId),
+      },
+      data: {
+        title: data.title,
+        description: data.description,
+        isActive: data.isActive,
+        expiresAt: data.expiresAt,
+      },
+    });
+
+    return this.formatLinkResponse(updatedLink);
+  }
+
+  async deleteLink(linkId: string, userId: string): Promise<void> {
+    const link = await prisma.link.findFirst({
+      where: {
+        id: BigInt(linkId),
+        userId: BigInt(userId),
+      },
+    });
+
+    if (!link) {
+      throw new AppError(404, ERROR_CODES.NOT_FOUND, 'Link not found');
+    }
+
+    await prisma.link.delete({
+      where: {
+        id: BigInt(linkId),
+      },
+    });
+  }
+
+  async getLinkAnalytics(linkId: string, userId: string): Promise<any> {
+    const link = await prisma.link.findFirst({
+      where: {
+        id: BigInt(linkId),
+        userId: BigInt(userId),
+      },
+      include: {
+        clicks: {
+          orderBy: {
+            clickedAt: 'desc',
+          },
+          take: 100,
+        },
+      },
+    });
+
+    if (!link) {
+      throw new AppError(404, ERROR_CODES.NOT_FOUND, 'Link not found');
+    }
+
+    const clicksByDay = await prisma.click.groupBy({
+      by: ['clickedAt'],
+      where: {
+        linkId: BigInt(linkId),
+      },
+      _count: true,
+    });
+
+    return {
+      link: this.formatLinkResponse(link),
+      analytics: {
+        totalClicks: link.clickCount,
+        uniqueClicks: link.uniqueClickCount,
+        lastClickedAt: link.lastClickedAt,
+        recentClicks: link.clicks.map((click: any) => ({
+          id: click.id.toString(),
+          ipAddress: click.ipAddress,
+          userAgent: click.userAgent,
+          referer: click.referer,
+          clickedAt: click.clickedAt,
+        })),
+        clicksByDay,
+      },
+    };
+  }
+
+  async getLinkClicks(linkId: string, userId: string, page: number = 1, limit: number = 50): Promise<{
+    clicks: any[];
+    total: number;
+    page: number;
+    totalPages: number;
+  }> {
+    const link = await prisma.link.findFirst({
+      where: {
+        id: BigInt(linkId),
+        userId: BigInt(userId),
+      },
+    });
+
+    if (!link) {
+      throw new AppError(404, ERROR_CODES.NOT_FOUND, 'Link not found');
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [clicks, total] = await Promise.all([
+      prisma.click.findMany({
+        where: {
+          linkId: BigInt(linkId),
+        },
+        orderBy: {
+          clickedAt: 'desc',
+        },
+        skip,
+        take: limit,
+      }),
+      prisma.click.count({
+        where: {
+          linkId: BigInt(linkId),
+        },
+      }),
+    ]);
+
+    return {
+      clicks: clicks.map(click => ({
+        id: click.id.toString(),
+        ipAddress: click.ipAddress,
+        userAgent: click.userAgent,
+        referer: click.referer,
+        clickedAt: click.clickedAt,
+      })),
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
   private formatLinkResponse(link: any): LinkResponse {
     return {
       id: link.id.toString(),
