@@ -22,3 +22,6 @@ prisma/migrations/dev/
 
 # Temporary files
 tmp/
+
+# Test coverage
+coverage/
